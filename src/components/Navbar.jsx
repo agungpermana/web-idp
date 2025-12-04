@@ -1,103 +1,135 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 const Navbar = () => {
-  // State to manage the visibility of the main 'Product' mega menu
-  const [isProductMenuOpen, setIsProductMenuOpen] = useState(false);
-  // State for mobile menu open/close (kept your original 'open' state)
+  const [openMenu, setOpenMenu] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const menuRef = useRef(null);
 
-  // Data structure for the Product Mega Menu content
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setOpenMenu(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const productMenuItems = {
     product: [
-      { icon: '📄', title: 'Agentic Document Extraction', desc: 'Extracts structured data from any document' },
-      { icon: '💡', title: 'LandingLens', desc: 'End-to-end Visual AI platform for training and deploying vision models' },
-      { icon: '❄️', title: 'Snowflake Native Apps', desc: 'Agentic Document Extraction and LandingLens as a Native App' },
+      { icon: "📄", title: "Agentic Document Extraction", desc: "Extracts structured data from any document" },
+      { icon: "💡", title: "LandingLens", desc: "End-to-end Visual AI platform for training and deploying vision models" },
+      { icon: "❄️", title: "Snowflake Native Apps", desc: "Agentic Document Extraction and LandingLens as a Native App" },
     ],
     research: [
-      { icon: '👁️', title: 'Agentic Object Detection', desc: 'Identifies specific items with a text prompt' },
-      { icon: '💻', title: 'VisionAgent: Agentic Coder', desc: 'GenAI-Powered app builder for developer' },
-    ]
+      { icon: "👁️", title: "Agentic Object Detection", desc: "Identifies specific items with a text prompt" },
+      { icon: "💻", title: "VisionAgent: Agentic Coder", desc: "GenAI-Powered app builder for developers" },
+    ],
   };
 
   const navItems = [
-    { name: "Product", isDropdown: true, open: isProductMenuOpen, setOpen: setIsProductMenuOpen, menuContent: productMenuItems },
-    { name: "Solutions", isDropdown: true, href: "#" },
-    { name: "Resources", isDropdown: true, href: "https://landing.ai/resources" },
-    { name: "Pricing", isDropdown: false, href: "#PricingPopup" },
-    { name: "Company", isDropdown: true, href: "#" },
+    { name: "Product", dropdown: true, menu: productMenuItems },
+    { name: "Solutions", dropdown: true },
+    { name: "Resources", dropdown: true },
+    { name: "Pricing", dropdown: false },
+    { name: "Company", dropdown: true },
   ];
 
   return (
-    // 1. Main Navbar Container - dark background, sticky, centered content
     <header className="bg-gray-900 shadow-lg sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-6">
         <div className="flex justify-between items-center h-20">
-          
-          {/* Logo - Left */}
-          <div className="flex-shrink-0">
-            <a href="https://landing.ai/">
-              <img
-                className="h-8 w-auto"
-                src="https://landing.ai/wp-content/uploads/2024/06/DarkLogo.svg"
-                alt="Landing AI Logo"
-              />
-            </a>
-          </div>
 
-          {/* Desktop Navigation - Center (Hidden on small screens) */}
-          <nav className="hidden lg:block h-full">
-            <ul className="flex space-x-8 h-full items-center">
-              {navItems.map((item) => (
+          {/* LOGO */}
+          <a href="https://landing.ai/">
+            <img
+              className="h-8 w-auto"
+              src="https://landing.ai/wp-content/uploads/2024/06/DarkLogo.svg"
+              alt="Landing AI Logo"
+            />
+          </a>
+
+          {/* DESKTOP NAV */}
+          <nav className="hidden bg-red lg:block h-full" ref={menuRef}>
+            <ul className="flex space-x-8 h-full items-center text-white">
+              {navItems.map((item, index) => (
                 <li
                   key={item.name}
-                  className="relative h-full flex items-center"
-                  // Use onMouseEnter/onMouseLeave for the dropdown hover effect
-                  onMouseEnter={() => item.isDropdown && item.setOpen && item.setOpen(true)}
-                  onMouseLeave={() => item.isDropdown && item.setOpen && item.setOpen(false)}
+                  className="relative flex items-center h-full"
                 >
-                  <a
-                    href={item.href || "#"}
-                    className="text-white text-sm font-medium hover:text-blue-400 flex items-center transition duration-150"
+                  {/* TOP NAV BUTTON */}
+                  <button 
+                    className="text-sm font-medium hover:text-blue-400 transition flex items-center h-full px-2"
+                    onMouseEnter={() => item.dropdown && setOpenMenu(index)}
+                    onMouseLeave={(e) => {
+                      // Only close if not moving to dropdown
+                      if (!e.relatedTarget?.closest('.dropdown-container')) {
+                        item.dropdown && setOpenMenu(null);
+                      }
+                    }}
                   >
                     {item.name}
-                    {item.isDropdown && (
-                      <span className="ml-2 transform transition-transform duration-200">
-                        {/* Chevron/Caret icon. Using text for simplicity */}
-                        {item.open ? '▲' : '▼'}
+                    {item.dropdown && (
+                      <span className="ml-1 text-[10px]">
+                        {openMenu === index ? "▲" : "▼"}
                       </span>
                     )}
-                  </a>
+                  </button>
 
-                  {/* Mega Menu Dropdown */}
-                  {item.isDropdown && item.open && item.menuContent && (
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-0 w-max bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-200">
-                      <div className="flex p-8">
-                        {/* Product Column */}
-                        <div className="mr-12">
-                          <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-4">PRODUCT</h3>
+                  {/* DROPDOWN - with gap to prevent disappearing */}
+                  {item.dropdown && openMenu === index && item.menu && (
+                    <div 
+                      className="dropdown-container absolute top-full left-0 mt-0 w-[720px] bg-white rounded-b-xl shadow-2xl border border-gray-200"
+                      onMouseEnter={() => setOpenMenu(index)}
+                      onMouseLeave={() => setOpenMenu(null)}
+                    >
+                      {/* Arrow/pointer at top */}
+                      <div className="absolute -top-2 left-6 w-4 h-4 bg-white transform rotate-45 border-t border-l border-gray-200"></div>
+                      
+                      <div className="flex p-8 gap-16 pt-10">
+                        {/* PRODUCT COLUMN */}
+                        <div className="w-1/2">
+                          <h3 className="text-xs font-semibold uppercase text-gray-500 mb-4">
+                            Product
+                          </h3>
                           <div className="space-y-4">
-                            {item.menuContent.product.map((link) => (
-                              <a key={link.title} href="#" className="block max-w-sm p-2 -m-2 rounded-lg hover:bg-gray-50 transition duration-150">
-                                <p className="text-base font-medium text-gray-900 flex items-start">
+                            {item.menu.product.map((link) => (
+                              <a
+                                key={link.title}
+                                href="#"
+                                className="block p-3 rounded-lg hover:bg-gray-50 transition group"
+                              >
+                                <p className="text-base font-medium flex items-start text-gray-900 group-hover:text-blue-600">
                                   <span className="mr-2 text-xl">{link.icon}</span>
                                   {link.title}
                                 </p>
-                                <p className="mt-1 text-sm text-gray-500 pl-7">{link.desc}</p>
+                                <p className="ml-7 text-sm text-gray-500 group-hover:text-gray-700">{link.desc}</p>
                               </a>
                             ))}
                           </div>
                         </div>
-                        {/* Research Column */}
-                        <div>
-                          <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-4">RESEARCH</h3>
+
+                        {/* RESEARCH COLUMN */}
+                        <div className="w-1/2">
+                          <h3 className="text-xs font-semibold uppercase text-gray-500 mb-4">
+                            Research
+                          </h3>
                           <div className="space-y-4">
-                            {item.menuContent.research.map((link) => (
-                              <a key={link.title} href="#" className="block max-w-sm p-2 -m-2 rounded-lg hover:bg-gray-50 transition duration-150">
-                                <p className="text-base font-medium text-gray-900 flex items-start">
-                                   <span className="mr-2 text-xl">{link.icon}</span>
+                            {item.menu.research.map((link) => (
+                              <a
+                                key={link.title}
+                                href="#"
+                                className="block p-3 rounded-lg hover:bg-gray-50 transition group"
+                              >
+                                <p className="text-base font-medium flex items-start text-gray-900 group-hover:text-blue-600">
+                                  <span className="mr-2 text-xl">{link.icon}</span>
                                   {link.title}
                                 </p>
-                                <p className="mt-1 text-sm text-gray-500 pl-7">{link.desc}</p>
+                                <p className="ml-7 text-sm text-gray-500 group-hover:text-gray-700">{link.desc}</p>
                               </a>
                             ))}
                           </div>
@@ -110,71 +142,113 @@ const Navbar = () => {
             </ul>
           </nav>
 
-          {/* CTA Buttons - Right */}
+          {/* DESKTOP CTA BUTTONS */}
           <div className="hidden lg:flex items-center space-x-4">
+            {/* Primary button - matching navbar background color */}
             <a
               href="#"
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition duration-150"
+              className="
+                bg-blue-500
+                hover:bg-gray-500
+                text-white 
+                px-5 py-2.5 
+                rounded-lg 
+                transition-colors 
+                font-medium
+                text-sm
+                border border-primary
+              "
             >
               Start for Free
             </a>
+
+            {/* Outline primary button */}
             <a
               href="https://landing.ai/contact-us"
-              className="px-4 py-2 text-sm font-medium text-white border border-gray-600 rounded-lg hover:bg-gray-700 transition duration-150"
+              className="
+                border 
+                border-blue-500 
+                text-blue-500 
+                hover:bg-blue-500/10 
+                px-5 py-2.5 
+                rounded-lg 
+                transition-colors
+                font-medium
+                text-sm
+              "
             >
               Get In Touch
             </a>
           </div>
 
-          {/* Mobile Menu Button - Hamburger (Visible on small screens) */}
-          <div className="lg:hidden">
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              type="button"
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
-            >
-              <span className="sr-only">Open main menu</span>
-              {/* Hamburger Icon */}
-              <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                {isMobileMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /> // X icon
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" /> // Hamburger icon
-                )}
-              </svg>
-            </button>
-          </div>
+          {/* MOBILE MENU BUTTON */}
+          <button
+            className="lg:hidden p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-800"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? "✕" : "☰"}
+          </button>
         </div>
       </div>
 
-      {/* Mobile Menu Panel */}
+      {/* MOBILE MENU */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden absolute top-20 w-full bg-gray-900 shadow-lg pb-4">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-             {/* Simplified mobile menu items */}
-             {navItems.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href || "#"}
-                  className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800"
-                >
-                  {item.name}
-                </a>
-              ))}
-              <div className="pt-4 border-t border-gray-700 space-y-2">
-                 <a
-                    href="#"
-                    className="block px-3 py-2 rounded-md text-base font-medium text-white bg-blue-600 hover:bg-blue-700"
-                  >
-                    Start for Free
-                  </a>
-                  <a
-                    href="https://landing.ai/contact-us"
-                    className="block px-3 py-2 rounded-md text-base font-medium text-white border border-gray-700 hover:bg-gray-700"
-                  >
-                    Get In Touch
-                  </a>
-              </div>
+        <div className="lg:hidden bg-gray-900 shadow-lg pb-6 border-t border-gray-800">
+          <div className="px-4 space-y-1">
+            {/* Nav Items */}
+            {navItems.map((item) => (
+              <a
+                key={item.name}
+                className="block px-3 py-3 rounded-md text-white hover:bg-gray-800 transition-colors"
+                href="#"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {item.name}
+              </a>
+            ))}
+
+            {/* CTA Buttons */}
+            <div className="pt-4 border-t border-gray-800 space-y-3">
+              <a
+                href="#"
+                className="
+                  bg-gray-800 
+                  hover:bg-gray-700 
+                  text-white 
+                  px-4 py-3 
+                  rounded-lg 
+                  w-full
+                  transition-colors
+                  font-medium
+                  text-center
+                  block
+                  border border-gray-700
+                "
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Start for Free
+              </a>
+
+              <a
+                href="https://landing.ai/contact-us"
+                className="
+                  border 
+                  border-blue-500 
+                  text-blue-500 
+                  hover:bg-blue-500/10 
+                  px-4 py-3 
+                  rounded-lg 
+                  w-full 
+                  transition-colors
+                  font-medium
+                  text-center
+                  block
+                "
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Get In Touch
+              </a>
+            </div>
           </div>
         </div>
       )}
