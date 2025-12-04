@@ -4,8 +4,18 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: "class", // Sesuai file asli
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        "primary": "#fa5a29",
+        "background-light": "#f8f6f5",
+        "background-dark": "#111827",
+      },
+      fontFamily: {
+        "display": ["Space Grotesk", "sans-serif"]
+      },
+    },
   },
   plugins: [],
-};
+}
