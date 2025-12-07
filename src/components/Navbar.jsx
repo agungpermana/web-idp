@@ -46,19 +46,22 @@ const Navbar = () => {
     ],
   };
 
-  // const companyMenuItems = {
-  //   "About Us": [
-  //     { icon: "🏢", title: "Our Story", desc: "Learn about our mission", path: "/about" },
-  //     { icon: "👥", title: "Careers", desc: "Join our team", path: "/careers" }
-  //   ]
-  // };
+  const companyMenuItems = {
+    "Company": [
+      { icon: "🏢", title: "About Us", path: "/about" },
+      { icon: "👥", title: "Careers", path: "/careers" },
+      { icon: "👋", title: "Partners", path: "/partners" },
+      { icon: "📞", title: "Contact Us", path: "/contact" },
+
+    ]
+  };
 
   const navItems = [
     { name: "Product", dropdown: true, menu: productMenuItems },
     { name: "Solutions", dropdown: true, menu: solutionMenuItems }, 
     { name: "Resources", dropdown: true, menu: resourceMenuItems }, 
     { name: "Pricing", dropdown: false, path: "/pricing" }, 
-    { name: "Company", dropdown: true }, 
+    { name: "Company", dropdown: true, menu: companyMenuItems }, 
   ];
 
   return (
