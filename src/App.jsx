@@ -8,6 +8,10 @@ import BlogPage from './pages/Resource/Blog';
 import EventPage from './pages/Resource/Event';
 import PricingPage from './pages/Pricing/PricingPage';
 import AboutPage from './pages/Company/About';
+import CareerPage from './pages/Company/Careers';
+import PartnerPage from './pages/Company/Partners';
+import ContactPage from './pages/Company/Contact';
+
 
 function App() {
   return (
@@ -21,6 +25,9 @@ function App() {
         <Route path="/event" element={<EventPage />} />
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path='/careers' element={<CareerPage />} />
+        <Route path='/partners' element={<PartnerPage />} />
+        <Route path='/contact' element={<ContactPage />} />
       </Routes>
       <Footer />
     </>
